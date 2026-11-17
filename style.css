@@ -395,6 +395,7 @@ textarea {
   height: 72px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  justify-items: center;
   align-items: center;
   padding: 0 8px;
   z-index: 20;
