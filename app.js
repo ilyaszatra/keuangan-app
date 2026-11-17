@@ -128,7 +128,7 @@ $("#setupForm").addEventListener("submit", (e) => {
   showScreen();
 });
 
-const TITLES = { home: "Beranda", history: "Riwayat", settings: "Pengaturan" };
+const TITLES = { home: "Beranda", history: "Riwayat", analysis: 'Analisa', settings: "Pengaturan" };
 function showView(name) {
   $$(".view").forEach((v) =>
     v.classList.toggle("hidden", v.id !== "view-" + name),

@@ -1,233 +1,207 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>Keuangan Saya</title>
-    <meta name="theme-color" content="#6d5efc" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Keuangan" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="icon.svg" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="bg-blob b1"></div>
-    <div class="bg-blob b2"></div>
-    <div id="progress" class="progress hidden"></div>
-    <div id="toasts" class="toast-wrap"></div>
 
-    <!-- Setup pertama kali -->
-    <section id="setup" class="screen hidden">
-      <div class="glass setup-card">
-        <h1>Selamat datang 👋</h1>
-        <p class="muted small">
-          Isi dua data ini sekali saja. Data hanya disimpan di HP ini.
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Keuangan Saya</title>
+  <meta name="theme-color" content="#6d5efc" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Keuangan" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div id="progress" class="progress hidden"></div>
+  <div id="toasts" class="toast-wrap"></div>
+
+  <!-- Setup pertama kali -->
+  <section id="setup" class="screen hidden">
+    <div class="glass setup-card">
+      <h1>Selamat datang 👋</h1>
+      <p class="muted small">
+        Isi dua data ini sekali saja. Data hanya disimpan di HP ini.
+      </p>
+      <form id="setupForm">
+        <label>URL Web App<input id="sUrl" type="url" required
+            placeholder="https://script.google.com/macros/s/.../exec" /></label>
+        <label>Token rahasia<input id="sToken" type="password" required /></label>
+        <button class="btn primary block">Simpan & Mulai</button>
+      </form>
+    </div>
+  </section>
+
+  <main id="app" class="hidden">
+    <header class="top">
+      <div>
+        <p class="muted small">Keuangan Saya</p>
+        <h1 id="title">Beranda</h1>
+      </div>
+      <button id="refresh" class="icon-btn" aria-label="Muat ulang">⟳</button>
+    </header>
+
+    <!-- BERANDA -->
+    <section id="view-home" class="view">
+      <div class="chips" id="periodChips">
+        <button data-p="hari">Hari ini</button>
+        <button data-p="minggu">Minggu ini</button>
+        <button data-p="bulan" class="on">Bulan ini</button>
+        <button data-p="custom">Custom</button>
+      </div>
+      <div class="custom-range hidden" id="customRange">
+        <input type="date" id="cFrom" aria-label="Dari tanggal" />
+        <input type="date" id="cTo" aria-label="Sampai tanggal" />
+      </div>
+      <p class="muted small center" id="rangeLabel" style="margin-top: 10px"></p>
+
+      <div class="hero">
+        <p>Saldo bersih</p>
+        <h2 id="sumNet">Rp 0</h2>
+        <div class="hero-row">
+          <div><span>Pemasukan</span><b id="sumIn">Rp 0</b></div>
+          <div><span>Pengeluaran</span><b id="sumOut">Rp 0</b></div>
+        </div>
+      </div>
+
+      <div id="insights" class="glass card"></div>
+
+      <div class="glass card">
+        <h3>Pengeluaran per kategori</h3>
+        <div class="chart-box"><canvas id="chCat"></canvas></div>
+        <p id="emptyCat" class="empty hidden">
+          Belum ada pengeluaran di periode ini.
         </p>
-        <form id="setupForm">
-          <label
-            >URL Web App<input
-              id="sUrl"
-              type="url"
-              required
-              placeholder="https://script.google.com/macros/s/.../exec"
-          /></label>
-          <label
-            >Token rahasia<input id="sToken" type="password" required
-          /></label>
-          <button class="btn primary block">Simpan & Mulai</button>
-        </form>
+      </div>
+      <div class="glass card">
+        <h3>Tren harian</h3>
+        <div class="chart-box"><canvas id="chDaily"></canvas></div>
+      </div>
+      <div class="glass card">
+        <h3>Pemasukan vs pengeluaran (6 bulan)</h3>
+        <div class="chart-box"><canvas id="chMonth"></canvas></div>
       </div>
     </section>
 
-    <main id="app" class="hidden">
-      <header class="top">
-        <div>
-          <p class="muted small">Keuangan Saya</p>
-          <h1 id="title">Beranda</h1>
-        </div>
-        <button id="refresh" class="icon-btn" aria-label="Muat ulang">⟳</button>
-      </header>
-
-      <!-- BERANDA -->
-      <section id="view-home" class="view">
-        <div class="chips" id="periodChips">
-          <button data-p="hari">Hari ini</button>
-          <button data-p="minggu">Minggu ini</button>
-          <button data-p="bulan" class="on">Bulan ini</button>
-          <button data-p="custom">Custom</button>
-        </div>
-        <div class="custom-range hidden" id="customRange">
-          <input type="date" id="cFrom" aria-label="Dari tanggal" />
-          <input type="date" id="cTo" aria-label="Sampai tanggal" />
-        </div>
-        <p
-          class="muted small center"
-          id="rangeLabel"
-          style="margin-top: 10px"
-        ></p>
-
-        <div class="hero">
-          <p>Saldo bersih</p>
-          <h2 id="sumNet">Rp 0</h2>
-          <div class="hero-row">
-            <div><span>Pemasukan</span><b id="sumIn">Rp 0</b></div>
-            <div><span>Pengeluaran</span><b id="sumOut">Rp 0</b></div>
-          </div>
-        </div>
-
-        <div id="insights" class="glass card"></div>
-
-        <div class="glass card">
-          <h3>Pengeluaran per kategori</h3>
-          <div class="chart-box"><canvas id="chCat"></canvas></div>
-          <p id="emptyCat" class="empty hidden">
-            Belum ada pengeluaran di periode ini.
-          </p>
-        </div>
-        <div class="glass card">
-          <h3>Tren harian</h3>
-          <div class="chart-box"><canvas id="chDaily"></canvas></div>
-        </div>
-        <div class="glass card">
-          <h3>Pemasukan vs pengeluaran (6 bulan)</h3>
-          <div class="chart-box"><canvas id="chMonth"></canvas></div>
-        </div>
-      </section>
-
-      <!-- RIWAYAT -->
-      <section id="view-history" class="view hidden">
-        <input
-          id="search"
-          class="search"
-          type="search"
-          placeholder="Cari deskripsi, kategori, catatan…"
-        />
-        <div class="filters">
-          <select id="hJenis">
-            <option value="all">Semua jenis</option>
-            <option value="out">Pengeluaran</option>
-            <option value="in">Pemasukan</option>
-          </select>
-          <select id="hCat">
-            <option value="">Semua kategori</option>
-          </select>
-        </div>
-        <div id="historyList"></div>
-      </section>
-
-      <!-- PENGATURAN -->
-      <section id="view-settings" class="view hidden">
-        <div class="glass card">
-          <h3>Koneksi</h3>
-          <p class="muted small" style="margin-bottom: 12px">
-            Aplikasi terhubung ke spreadsheet kamu.
-          </p>
-          <div style="display: flex; flex-direction: column; gap: 10px">
-            <button class="btn" id="btnRefresh">Muat ulang data</button>
-            <button class="btn danger" id="btnLogout">
-              Hapus pengaturan di HP ini
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <nav class="bottom-nav glass">
-        <button data-view="home" class="on">🏠<span>Beranda</span></button>
-        <button id="fab" class="fab" aria-label="Tambah transaksi">+</button>
-        <button data-view="history">📋<span>Riwayat</span></button>
-        <button data-view="settings">⚙️<span>Pengaturan</span></button>
-      </nav>
-    </main>
-
-    <!-- Form tambah/edit -->
-    <div id="sheetBackdrop" class="backdrop hidden"></div>
-    <form id="form" class="sheet hidden" novalidate>
-      <div class="grab"></div>
-      <div class="sheet-head">
-        <h2 id="formTitle" style="font-size: 20px">Tambah transaksi</h2>
-        <button
-          type="button"
-          class="icon-btn"
-          id="formClose"
-          aria-label="Tutup"
-        >
-          ✕
-        </button>
+    <!-- RIWAYAT -->
+    <section id="view-history" class="view hidden">
+      <input id="search" class="search" type="search" placeholder="Cari deskripsi, kategori, catatan…" />
+      <div class="filters">
+        <select id="hJenis">
+          <option value="all">Semua jenis</option>
+          <option value="out">Pengeluaran</option>
+          <option value="in">Pemasukan</option>
+        </select>
+        <select id="hCat">
+          <option value="">Semua kategori</option>
+        </select>
       </div>
+      <div id="historyList"></div>
+    </section>
 
-      <div class="seg" id="fTypeSeg">
-        <button type="button" data-type="out" class="on">Pengeluaran</button>
-        <button type="button" data-type="in">Pemasukan</button>
+    <!-- ANALISA -->
+    <section id="view-analysis" class="view hidden">
+      <div class="glass card">
+        <h3>Analisa</h3>
+        <p class="muted small">Segera hadir. Di sini akan tampil tren dan perbandingan keuangan kamu.</p>
       </div>
-      <input type="hidden" id="fType" value="out" />
+    </section>
 
-      <label
-        >Nominal
-        <div class="money">
-          <span>Rp</span>
-          <input
-            id="nominal"
-            inputmode="numeric"
-            placeholder="0"
-            autocomplete="off"
-          />
+    <!-- PENGATURAN -->
+    <section id="view-settings" class="view hidden">
+      <div class="glass card">
+        <h3>Koneksi</h3>
+        <p class="muted small" style="margin-bottom: 12px">
+          Aplikasi terhubung ke spreadsheet kamu.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <button class="btn" id="btnRefresh">Muat ulang data</button>
+          <button class="btn danger" id="btnLogout">
+            Hapus pengaturan di HP ini
+          </button>
         </div>
-      </label>
-
-      <label>Kategori<select id="fKategori"></select></label>
-
-      <div class="row2">
-        <label>Tanggal<input type="date" id="fTanggal" /></label>
-        <label>Status<select id="fStatus"></select></label>
       </div>
+    </section>
 
-      <label
-        >Deskripsi<input id="fDesc" placeholder="Contoh: makan siang"
-      /></label>
+    <nav class="bottom-nav glass">
+      <button data-view="home" class="on">🏠<span>Beranda</span></button>
+      <button data-view="history">📋<span>Riwayat</span></button>
+      <button id="fab" class="fab" aria-label="Tambah transaksi">+</button>
+      <button data-view="analysis">📊<span>Analisa</span></button>
+      <button data-view="settings">⚙️<span>Pengaturan</span></button>
+    </nav>
+  </main>
 
-      <details>
-        <summary>Detail tambahan</summary>
-        <label>Subkategori<select id="fSub"></select></label>
-        <label
-          ><span id="partyLabel">Merchant / Penerima</span><input id="fParty"
-        /></label>
-        <label id="jenisWrap"
-          >Jenis pengeluaran<select id="fJenis2"></select
-        ></label>
-        <div class="row2">
-          <label>Metode<select id="fMetode"></select></label>
-          <label>Rekening<select id="fRek"></select></label>
-        </div>
-        <label>Berulang<select id="fBerulang"></select></label>
-        <label>Catatan<textarea id="fCatatan" rows="2"></textarea></label>
-      </details>
-
-      <p id="formError" class="error hidden"></p>
-      <button class="btn primary block big" id="fSave">Simpan</button>
-      <button type="button" class="btn danger block hidden" id="fDelete">
-        Hapus transaksi
+  <!-- Form tambah/edit -->
+  <div id="sheetBackdrop" class="backdrop hidden"></div>
+  <form id="form" class="sheet hidden" novalidate>
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <h2 id="formTitle" style="font-size: 20px">Tambah transaksi</h2>
+      <button type="button" class="icon-btn" id="formClose" aria-label="Tutup">
+        ✕
       </button>
+    </div>
+
+    <div class="seg" id="fTypeSeg">
+      <button type="button" data-type="out" class="on">Pengeluaran</button>
+      <button type="button" data-type="in">Pemasukan</button>
+    </div>
+    <input type="hidden" id="fType" value="out" />
+
+    <label>Nominal
+      <div class="money">
+        <span>Rp</span>
+        <input id="nominal" inputmode="numeric" placeholder="0" autocomplete="off" />
+      </div>
+    </label>
+
+    <label>Kategori<select id="fKategori"></select></label>
+
+    <div class="row2">
+      <label>Tanggal<input type="date" id="fTanggal" /></label>
+      <label>Status<select id="fStatus"></select></label>
+    </div>
+
+    <label>Deskripsi<input id="fDesc" placeholder="Contoh: makan siang" /></label>
+
+    <details>
+      <summary>Detail tambahan</summary>
+      <label>Subkategori<select id="fSub"></select></label>
+      <label><span id="partyLabel">Merchant / Penerima</span><input id="fParty" /></label>
+      <label id="jenisWrap">Jenis pengeluaran<select id="fJenis2"></select></label>
+      <div class="row2">
+        <label>Metode<select id="fMetode"></select></label>
+        <label>Rekening<select id="fRek"></select></label>
+      </div>
+      <label>Berulang<select id="fBerulang"></select></label>
+      <label>Catatan<textarea id="fCatatan" rows="2"></textarea></label>
+    </details>
+
+    <p id="formError" class="error hidden"></p>
+    <button class="btn primary block big" id="fSave">Simpan</button>
+    <button type="button" class="btn danger block hidden" id="fDelete">
+      Hapus transaksi
+    </button>
+  </form>
+
+  <!-- Dialog konfirmasi -->
+  <dialog id="confirm">
+    <p id="confirmText"></p>
+    <form method="dialog">
+      <button value="no" class="btn">Batal</button>
+      <button value="yes" class="btn danger">Ya, lanjut</button>
     </form>
+  </dialog>
 
-    <!-- Dialog konfirmasi -->
-    <dialog id="confirm">
-      <p id="confirmText"></p>
-      <form method="dialog">
-        <button value="no" class="btn">Batal</button>
-        <button value="yes" class="btn danger">Ya, lanjut</button>
-      </form>
-    </dialog>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="app.js"></script>
-  </body>
 </html>
