@@ -429,18 +429,23 @@ textarea {
 .bottom-nav .fab {
   width: 64px;
   height: 64px;
-  border-radius: 22px;
-  margin-top: -30px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  align-self: start;
+  margin-top: -22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 22px;
   background: linear-gradient(135deg, var(--brand), var(--teal));
   color: #fff;
   font-size: 34px;
   font-weight: 300;
-  box-shadow: 0 12px 28px rgba(109, 94, 252, 0.45);
-  opacity: 1;
   line-height: 1;
+  box-shadow: 0 12px 28px rgba(109, 94, 252, .45);
+  opacity: 1
 }
 
 .backdrop {
