@@ -25,7 +25,7 @@ const esc = (s) =>
     /[&<>"']/g,
     (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-        c
+      c
       ],
   );
 const PALETTE = [
@@ -53,20 +53,29 @@ const charts = {};
 
 /* ---------- API ---------- */
 async function api(action, data = {}) {
-  const res = await fetch(cfg.url, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ token: cfg.token, action, data }),
-  });
-  const json = await res.json();
-  if (!json.ok) throw new Error(json.error || "Gagal memproses data");
+  let res;
+  try {
+    res = await fetch(cfg.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: cfg.token, action, data }),
+    });
+  } catch (err) {
+    throw new Error('Gagal menghubungi server. Cek URL (harus berakhiran /exec) dan pastikan "Who has access" = Anyone.');
+  }
+
+  let json;
+  try {
+    json = await res.json();
+  } catch (err) {
+    throw new Error('Server tidak mengirim data. Biasanya deployment belum diatur ke "Anyone" atau URL salah.');
+  }
+
+  if (!json.ok) throw new Error(json.error || 'Gagal memproses data');
   return json;
 }
 
-const friendly = (err) =>
-  err instanceof TypeError
-    ? "Tidak bisa terhubung. Cek koneksi internet."
-    : err.message;
+const friendly = (err) => err.message;
 
 function toast(msg, type = "ok") {
   const el = document.createElement("div");
