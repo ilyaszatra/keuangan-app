@@ -1,0 +1,12 @@
+{
+  "name": "Keuangan Saya",
+  "short_name": "Keuangan",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbfcff",
+  "theme_color": "#6d5efc",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
